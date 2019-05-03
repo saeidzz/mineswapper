@@ -1,0 +1,481 @@
+<html>
+<head>
+<title>Minesweeper.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(128,128,128); }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+.s4 { color: rgb(104,151,187); }
+.s5 { color: rgb(106,135,89); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Minesweeper.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">package </span><span class="s1">Minesweeper</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">java.awt.*</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.Dimension</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">javax.swing.*</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.event.*</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.util.*</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">Minesweeper </span><span class="s0">extends </span><span class="s1">JFrame </span><span class="s0">implements </span><span class="s1">ActionListener</span><span class="s0">, </span><span class="s1">ContainerListener { 
+</span><span class="s2">//تعریف متغیر های مورد نیاز</span><span class="s1"> 
+    </span><span class="s0">int </span><span class="s1">fw</span><span class="s3">/* عرض*/</span><span class="s0">, </span><span class="s1">fh</span><span class="s3">/*ارتفاع*/</span><span class="s0">, </span><span class="s1">blockr</span><span class="s3">/* دکمه های موجود در یک ستون*/</span><span class="s0">, </span><span class="s1">blockc</span><span class="s3">/* دکمه های موجود در یک ردیف*/</span><span class="s0">, </span><span class="s1">var1</span><span class="s0">, </span><span class="s1">var2</span><span class="s0">, </span><span class="s1">num_of_mine</span><span class="s0">, </span><span class="s1">detectedmine = </span><span class="s4">0</span><span class="s0">, </span><span class="s1">savedlevel = </span><span class="s4">1</span><span class="s0">,</span><span class="s1"> 
+            savedblockr</span><span class="s0">, </span><span class="s1">savedblockc</span><span class="s0">, </span><span class="s1">savednum_of_mine = </span><span class="s4">10</span><span class="s0">;</span><span class="s2">//تعداد سطر و ستون و تعداد بمب پیشفرض</span><span class="s1"> 
+ 
+   </span><span class="s0">int</span><span class="s1">[] r = {-</span><span class="s4">1</span><span class="s0">, </span><span class="s1">-</span><span class="s4">1</span><span class="s0">, </span><span class="s1">-</span><span class="s4">1</span><span class="s0">, </span><span class="s4">0</span><span class="s0">, </span><span class="s4">1</span><span class="s0">, </span><span class="s4">1</span><span class="s0">, </span><span class="s4">1</span><span class="s0">, </span><span class="s4">0</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+   </span><span class="s0">int</span><span class="s1">[] c = {-</span><span class="s4">1</span><span class="s0">, </span><span class="s4">0</span><span class="s0">, </span><span class="s4">1</span><span class="s0">, </span><span class="s4">1</span><span class="s0">, </span><span class="s4">1</span><span class="s0">, </span><span class="s4">0</span><span class="s0">, </span><span class="s1">-</span><span class="s4">1</span><span class="s0">, </span><span class="s1">-</span><span class="s4">1</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+    JButton[][] blocks</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">int</span><span class="s1">[][] countmine</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">int</span><span class="s1">[][] colour</span><span class="s0">;</span><span class="s1"> 
+    ImageIcon[] ic = </span><span class="s0">new </span><span class="s1">ImageIcon[</span><span class="s4">14</span><span class="s1">]</span><span class="s0">;</span><span class="s1"> 
+    JPanel panelb = </span><span class="s0">new </span><span class="s1">JPanel()</span><span class="s0">;</span><span class="s1"> 
+    JPanel panelmt = </span><span class="s0">new </span><span class="s1">JPanel()</span><span class="s0">;</span><span class="s1"> 
+    JTextField tf_mine</span><span class="s0">, </span><span class="s1">tf_time</span><span class="s0">;</span><span class="s1"> 
+    JButton reset = </span><span class="s0">new </span><span class="s1">JButton(</span><span class="s5">&quot;&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+    Random ranr = </span><span class="s0">new </span><span class="s1">Random()</span><span class="s0">;</span><span class="s1"> 
+    Random ranc = </span><span class="s0">new </span><span class="s1">Random()</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">boolean </span><span class="s1">check = </span><span class="s0">true, </span><span class="s1">starttime = </span><span class="s0">false;</span><span class="s1"> 
+    Stopwatch sw</span><span class="s0">;</span><span class="s1"> 
+    MouseHendeler mh</span><span class="s0">;</span><span class="s1"> 
+    Point p</span><span class="s0">;</span><span class="s1"> 
+ 
+    Minesweeper() { 
+        </span><span class="s0">super</span><span class="s1">(</span><span class="s5">&quot;Minesweeper&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        setLocation(</span><span class="s4">400</span><span class="s0">, </span><span class="s4">300</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+        setic()</span><span class="s0">;</span><span class="s1"> 
+        setpanel()</span><span class="s0">;</span><span class="s1"> 
+        setmanue()</span><span class="s0">;</span><span class="s1"> 
+ 
+        sw = </span><span class="s0">new </span><span class="s1">Stopwatch()</span><span class="s0">;</span><span class="s1"> 
+ 
+        reset.addActionListener(</span><span class="s0">new </span><span class="s1">ActionListener() { 
+ 
+            </span><span class="s0">public void </span><span class="s1">actionPerformed(ActionEvent ae) { 
+                </span><span class="s0">try </span><span class="s1">{ 
+                    sw.stop()</span><span class="s0">;</span><span class="s1"> 
+                    setpanel()</span><span class="s0">;</span><span class="s1"> 
+                } </span><span class="s0">catch </span><span class="s1">(Exception ex) { 
+                    setpanel()</span><span class="s0">;</span><span class="s1"> 
+                } 
+                reset()</span><span class="s0">;</span><span class="s1"> 
+ 
+            } 
+        })</span><span class="s0">;</span><span class="s1"> 
+        setDefaultCloseOperation(EXIT_ON_CLOSE)</span><span class="s0">;</span><span class="s1"> 
+        show()</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">reset() { 
+        check = </span><span class="s0">true;</span><span class="s1"> 
+        starttime = </span><span class="s0">false;</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt; blockr</span><span class="s0">; </span><span class="s1">i++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">j &lt; blockc</span><span class="s0">; </span><span class="s1">j++) { 
+                colour[i][j] = </span><span class="s5">'w'</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">setpanel() { 
+</span><span class="s2">//تعریف طول و عرض </span><span class="s1"> 
+           fw = </span><span class="s4">200</span><span class="s0">;</span><span class="s1"> 
+            fh = </span><span class="s4">300</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s2">//تعریف تعداد دکمه ها</span><span class="s1"> 
+            blockr = </span><span class="s4">10</span><span class="s0">;</span><span class="s1"> 
+            blockc = </span><span class="s4">10</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s2">//تعداد بمب ها به صورت پیشفرض برابر 10 است</span><span class="s1"> 
+            num_of_mine = </span><span class="s4">10</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s2">//تعداد دکمه ها به صورت پیشفرض برابر 10 در 10 می باشد</span><span class="s1"> 
+        savedblockr = blockr</span><span class="s0">;</span><span class="s1"> 
+        savedblockc = blockc</span><span class="s0">;</span><span class="s1"> 
+        savednum_of_mine = num_of_mine</span><span class="s0">;</span><span class="s1"> 
+ 
+        setSize(fw</span><span class="s0">, </span><span class="s1">fh)</span><span class="s0">;</span><span class="s1"> 
+        setResizable(</span><span class="s0">false</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        detectedmine = num_of_mine</span><span class="s0">;</span><span class="s1"> 
+        p = </span><span class="s0">this</span><span class="s1">.getLocation()</span><span class="s0">;</span><span class="s1"> 
+ 
+        blocks = </span><span class="s0">new </span><span class="s1">JButton[blockr][blockc]</span><span class="s0">;</span><span class="s1"> 
+        countmine = </span><span class="s0">new int</span><span class="s1">[blockr][blockc]</span><span class="s0">;</span><span class="s1"> 
+        colour = </span><span class="s0">new int</span><span class="s1">[blockr][blockc]</span><span class="s0">;</span><span class="s1"> 
+        mh = </span><span class="s0">new </span><span class="s1">MouseHendeler()</span><span class="s0">;</span><span class="s1"> 
+ 
+        getContentPane().removeAll()</span><span class="s0">;</span><span class="s1"> 
+        panelb.removeAll()</span><span class="s0">;</span><span class="s1"> 
+ 
+        tf_mine = </span><span class="s0">new </span><span class="s1">JTextField(</span><span class="s5">&quot;&quot; </span><span class="s1">+ num_of_mine</span><span class="s0">, </span><span class="s4">3</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        tf_mine.setEditable(</span><span class="s0">false</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        tf_mine.setFont(</span><span class="s0">new </span><span class="s1">Font(</span><span class="s5">&quot;DigtalFont.TTF&quot;</span><span class="s0">, </span><span class="s1">Font.BOLD</span><span class="s0">, </span><span class="s4">25</span><span class="s1">))</span><span class="s0">;</span><span class="s1"> 
+        tf_mine.setBackground(Color.BLACK)</span><span class="s0">;</span><span class="s1"> 
+        tf_mine.setForeground(Color.RED)</span><span class="s0">;</span><span class="s1"> 
+        tf_mine.setBorder(BorderFactory.createLoweredBevelBorder())</span><span class="s0">;</span><span class="s1"> 
+        tf_time = </span><span class="s0">new </span><span class="s1">JTextField(</span><span class="s5">&quot;000&quot;</span><span class="s0">, </span><span class="s4">3</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        tf_time.setEditable(</span><span class="s0">false</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        tf_time.setFont(</span><span class="s0">new </span><span class="s1">Font(</span><span class="s5">&quot;DigtalFont.TTF&quot;</span><span class="s0">, </span><span class="s1">Font.BOLD</span><span class="s0">, </span><span class="s4">25</span><span class="s1">))</span><span class="s0">;</span><span class="s1"> 
+        tf_time.setBackground(Color.BLACK)</span><span class="s0">;</span><span class="s1"> 
+        tf_time.setForeground(Color.RED)</span><span class="s0">;</span><span class="s1"> 
+        tf_time.setBorder(BorderFactory.createLoweredBevelBorder())</span><span class="s0">;</span><span class="s1"> 
+        reset.setIcon(ic[</span><span class="s4">11</span><span class="s1">])</span><span class="s0">;</span><span class="s1"> 
+        reset.setBorder(BorderFactory.createLoweredBevelBorder())</span><span class="s0">;</span><span class="s1"> 
+ 
+        panelmt.removeAll()</span><span class="s0">;</span><span class="s1"> 
+        panelmt.setLayout(</span><span class="s0">new </span><span class="s1">BorderLayout())</span><span class="s0">;</span><span class="s1"> 
+        panelmt.add(tf_mine</span><span class="s0">, </span><span class="s1">BorderLayout.WEST)</span><span class="s0">;</span><span class="s1"> 
+        panelmt.add(reset</span><span class="s0">, </span><span class="s1">BorderLayout.CENTER)</span><span class="s0">;</span><span class="s1"> 
+        panelmt.add(tf_time</span><span class="s0">, </span><span class="s1">BorderLayout.EAST)</span><span class="s0">;</span><span class="s1"> 
+        panelmt.setBorder(BorderFactory.createLoweredBevelBorder())</span><span class="s0">;</span><span class="s1"> 
+ 
+        panelb.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(</span><span class="s4">10</span><span class="s0">, </span><span class="s4">10</span><span class="s0">, </span><span class="s4">10</span><span class="s0">, </span><span class="s4">10</span><span class="s1">)</span><span class="s0">, </span><span class="s1">BorderFactory.createLoweredBevelBorder()))</span><span class="s0">;</span><span class="s1"> 
+        panelb.setPreferredSize(</span><span class="s0">new </span><span class="s1">Dimension(fw</span><span class="s0">, </span><span class="s1">fh))</span><span class="s0">;</span><span class="s1"> 
+        panelb.setLayout(</span><span class="s0">new </span><span class="s1">GridLayout(</span><span class="s4">0</span><span class="s0">, </span><span class="s1">blockc))</span><span class="s0">;</span><span class="s1"> 
+        panelb.addContainerListener(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt; blockr</span><span class="s0">; </span><span class="s1">i++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">j &lt; blockc</span><span class="s0">; </span><span class="s1">j++) { 
+                blocks[i][j] = </span><span class="s0">new </span><span class="s1">JButton(</span><span class="s5">&quot;&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                blocks[i][j].addMouseListener(mh)</span><span class="s0">;</span><span class="s1"> 
+ 
+                panelb.add(blocks[i][j])</span><span class="s0">;</span><span class="s1"> 
+ 
+            } 
+        } 
+        reset()</span><span class="s0">;</span><span class="s1"> 
+ 
+        panelb.revalidate()</span><span class="s0">;</span><span class="s1"> 
+        panelb.repaint()</span><span class="s0">;</span><span class="s1"> 
+        getContentPane().setLayout(</span><span class="s0">new </span><span class="s1">BorderLayout())</span><span class="s0">;</span><span class="s1"> 
+        getContentPane().addContainerListener(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        getContentPane().repaint()</span><span class="s0">;</span><span class="s1"> 
+        getContentPane().add(panelb</span><span class="s0">, </span><span class="s1">BorderLayout.CENTER)</span><span class="s0">;</span><span class="s1"> 
+        getContentPane().add(panelmt</span><span class="s0">, </span><span class="s1">BorderLayout.NORTH)</span><span class="s0">;</span><span class="s1"> 
+        setVisible(</span><span class="s0">true</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+    } 
+</span><span class="s2">// منوی کاربر</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">setmanue() { 
+        JMenuBar bar = </span><span class="s0">new </span><span class="s1">JMenuBar()</span><span class="s0">;</span><span class="s1"> 
+        JMenu game = </span><span class="s0">new </span><span class="s1">JMenu(</span><span class="s5">&quot;بازی&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        JMenuItem menuitem = </span><span class="s0">new </span><span class="s1">JMenuItem(</span><span class="s5">&quot;بازی جدید&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">final </span><span class="s1">JMenuItem exit = </span><span class="s0">new </span><span class="s1">JMenuItem(</span><span class="s5">&quot;خروج&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">final </span><span class="s1">JMenu help = </span><span class="s0">new </span><span class="s1">JMenu(</span><span class="s5">&quot;راهمنایی&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">final </span><span class="s1">JMenuItem helpitem = </span><span class="s0">new </span><span class="s1">JMenuItem(</span><span class="s5">&quot;راهنمایی&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+        menuitem.addActionListener( 
+                </span><span class="s0">new </span><span class="s1">ActionListener() { 
+                    </span><span class="s0">public void </span><span class="s1">actionPerformed(ActionEvent e) { 
+                        setpanel()</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                })</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+   
+ 
+        exit.addActionListener(</span><span class="s0">new </span><span class="s1">ActionListener() { 
+ 
+            </span><span class="s0">public void </span><span class="s1">actionPerformed(ActionEvent e) { 
+                System.exit(</span><span class="s4">0</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            } 
+        })</span><span class="s0">;</span><span class="s1"> 
+ 
+        helpitem.addActionListener(</span><span class="s0">new </span><span class="s1">ActionListener() { 
+ 
+            </span><span class="s0">public void </span><span class="s1">actionPerformed(ActionEvent e) { 
+                JOptionPane.showMessageDialog(</span><span class="s0">null, </span><span class="s5">&quot;instruction&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+            } 
+        })</span><span class="s0">;</span><span class="s1"> 
+ 
+        setJMenuBar(bar)</span><span class="s0">;</span><span class="s1"> 
+        game.add(menuitem)</span><span class="s0">;</span><span class="s1"> 
+        game.add(exit)</span><span class="s0">;</span><span class="s1"> 
+        help.add(helpitem)</span><span class="s0">;</span><span class="s1"> 
+        bar.add(game)</span><span class="s0">;</span><span class="s1"> 
+        bar.add(help)</span><span class="s0">;</span><span class="s1"> 
+ 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">componentAdded(ContainerEvent ce) { 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">componentRemoved(ContainerEvent ce) { 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">actionPerformed(ActionEvent ae) { 
+    } 
+</span><span class="s2">//کلاس کنترل کننده موس</span><span class="s1"> 
+    </span><span class="s0">class </span><span class="s1">MouseHendeler </span><span class="s0">extends </span><span class="s1">MouseAdapter { 
+</span><span class="s2">// متدی جهت بررسی کلیک موس</span><span class="s1"> 
+        </span><span class="s0">public void </span><span class="s1">mouseClicked(MouseEvent me) { 
+            </span><span class="s0">if </span><span class="s1">(check == </span><span class="s0">true</span><span class="s1">) { 
+                </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt; blockr</span><span class="s0">; </span><span class="s1">i++) { 
+                    </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">j &lt; blockc</span><span class="s0">; </span><span class="s1">j++) { 
+                        </span><span class="s0">if </span><span class="s1">(me.getSource() == blocks[i][j]) { 
+                            var1 = i</span><span class="s0">;</span><span class="s1"> 
+                            var2 = j</span><span class="s0">;</span><span class="s1"> 
+                            i = blockr</span><span class="s0">;</span><span class="s1"> 
+                            </span><span class="s0">break;</span><span class="s1"> 
+                        } 
+                    } 
+                } 
+ 
+                setmine()</span><span class="s0">;</span><span class="s1"> 
+                calculation()</span><span class="s0">;</span><span class="s1"> 
+                check = </span><span class="s0">false;</span><span class="s1"> 
+ 
+            } 
+ 
+            showvalue(me)</span><span class="s0">;</span><span class="s1"> 
+            winner()</span><span class="s0">;</span><span class="s1"> 
+ 
+            </span><span class="s0">if </span><span class="s1">(starttime == </span><span class="s0">false</span><span class="s1">) { 
+                sw.Start()</span><span class="s0">;</span><span class="s1"> 
+                starttime = </span><span class="s0">true;</span><span class="s1"> 
+            } 
+ 
+        } 
+    } 
+</span><span class="s2">//متدی جهت تعیین برنده و نمایش پیغام</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">winner() { 
+        </span><span class="s0">int </span><span class="s1">q = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">k = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">k &lt; blockr</span><span class="s0">; </span><span class="s1">k++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">l = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">l &lt; blockc</span><span class="s0">; </span><span class="s1">l++) { 
+                </span><span class="s0">if </span><span class="s1">(colour[k][l] == </span><span class="s5">'w'</span><span class="s1">) { 
+                    q = </span><span class="s4">1</span><span class="s0">;</span><span class="s1"> 
+                } 
+            } 
+        } 
+ 
+ 
+        </span><span class="s0">if </span><span class="s1">(q == </span><span class="s4">0</span><span class="s1">) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">k = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">k &lt; blockr</span><span class="s0">; </span><span class="s1">k++) { 
+                </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">l = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">l &lt; blockc</span><span class="s0">; </span><span class="s1">l++) { 
+                    blocks[k][l].removeMouseListener(mh)</span><span class="s0">;</span><span class="s1"> 
+                } 
+            } 
+ 
+            sw.stop()</span><span class="s0">;</span><span class="s1"> 
+            JOptionPane.showMessageDialog(</span><span class="s0">this, </span><span class="s5">&quot;تبریک شما برنده شدید&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        } 
+    } 
+</span><span class="s2">//متدی جهت نمایش مقادیر دکمه ها</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">showvalue(MouseEvent e) { 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt; blockr</span><span class="s0">; </span><span class="s1">i++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">j &lt; blockc</span><span class="s0">; </span><span class="s1">j++) { 
+ 
+                </span><span class="s0">if </span><span class="s1">(e.getSource() == blocks[i][j]) { 
+                    </span><span class="s0">if </span><span class="s1">(e.isMetaDown() == </span><span class="s0">false</span><span class="s1">) { 
+                        </span><span class="s0">if </span><span class="s1">(blocks[i][j].getIcon() == ic[</span><span class="s4">10</span><span class="s1">]) { 
+                            </span><span class="s0">if </span><span class="s1">(detectedmine &lt; num_of_mine) { 
+                                detectedmine++</span><span class="s0">;</span><span class="s1"> 
+                            } 
+                            tf_mine.setText(</span><span class="s5">&quot;&quot; </span><span class="s1">+ detectedmine)</span><span class="s0">;</span><span class="s1"> 
+                        } 
+ 
+                        </span><span class="s0">if </span><span class="s1">(countmine[i][j] == -</span><span class="s4">1</span><span class="s1">) { 
+                            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">k = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">k &lt; blockr</span><span class="s0">; </span><span class="s1">k++) { 
+                                </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">l = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">l &lt; blockc</span><span class="s0">; </span><span class="s1">l++) { 
+                                    </span><span class="s0">if </span><span class="s1">(countmine[k][l] == -</span><span class="s4">1</span><span class="s1">) { 
+ 
+                                        blocks[k][l].setIcon(ic[</span><span class="s4">9</span><span class="s1">])</span><span class="s0">;</span><span class="s1"> 
+                                        blocks[k][l].removeMouseListener(mh)</span><span class="s0">;</span><span class="s1"> 
+                                    } 
+                                    blocks[k][l].removeMouseListener(mh)</span><span class="s0">;</span><span class="s1"> 
+                                } 
+                            } 
+                            sw.stop()</span><span class="s0">;</span><span class="s1"> 
+                            reset.setIcon(ic[</span><span class="s4">12</span><span class="s1">])</span><span class="s0">;</span><span class="s1"> 
+                            JOptionPane.showMessageDialog(</span><span class="s0">null, </span><span class="s5">&quot;متاسفانه شما باختید&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                        } </span><span class="s0">else if </span><span class="s1">(countmine[i][j] == </span><span class="s4">0</span><span class="s1">) { 
+                            dfs(i</span><span class="s0">, </span><span class="s1">j)</span><span class="s0">;</span><span class="s1"> 
+                        } </span><span class="s0">else </span><span class="s1">{ 
+                            blocks[i][j].setIcon(ic[countmine[i][j]])</span><span class="s0">;</span><span class="s1"> 
+                            colour[i][j] = </span><span class="s5">'b'</span><span class="s0">;</span><span class="s1"> 
+                            </span><span class="s0">break;</span><span class="s1"> 
+                        } 
+                    } </span><span class="s0">else </span><span class="s1">{ 
+                        </span><span class="s0">if </span><span class="s1">(detectedmine != </span><span class="s4">0</span><span class="s1">) { 
+                            </span><span class="s0">if </span><span class="s1">(blocks[i][j].getIcon() == </span><span class="s0">null</span><span class="s1">) { 
+                                detectedmine--</span><span class="s0">;</span><span class="s1"> 
+                                blocks[i][j].setIcon(ic[</span><span class="s4">10</span><span class="s1">])</span><span class="s0">;</span><span class="s1"> 
+                            } 
+                            tf_mine.setText(</span><span class="s5">&quot;&quot; </span><span class="s1">+ detectedmine)</span><span class="s0">;</span><span class="s1"> 
+                        } 
+ 
+ 
+                    } 
+                } 
+ 
+            } 
+        } 
+ 
+    } 
+</span><span class="s2">// متدی جهت محاسبه بمب های اطراف</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">calculation() { 
+        </span><span class="s0">int </span><span class="s1">row</span><span class="s0">, </span><span class="s1">column</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt; blockr</span><span class="s0">; </span><span class="s1">i++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">j &lt; blockc</span><span class="s0">; </span><span class="s1">j++) { 
+                </span><span class="s0">int </span><span class="s1">value = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">R</span><span class="s0">, </span><span class="s1">C</span><span class="s0">;</span><span class="s1"> 
+                row = i</span><span class="s0">;</span><span class="s1"> 
+                column = j</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(countmine[row][column] != -</span><span class="s4">1</span><span class="s1">) { 
+                    </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">k = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">k &lt; </span><span class="s4">8</span><span class="s0">; </span><span class="s1">k++) { 
+                        R = row + r[k]</span><span class="s0">;</span><span class="s1"> 
+                        C = column + c[k]</span><span class="s0">;</span><span class="s1"> 
+ 
+                        </span><span class="s0">if </span><span class="s1">(R &gt;= </span><span class="s4">0 </span><span class="s1">&amp;&amp; C &gt;= </span><span class="s4">0 </span><span class="s1">&amp;&amp; R &lt; blockr &amp;&amp; C &lt; blockc) { 
+                            </span><span class="s0">if </span><span class="s1">(countmine[R][C] == -</span><span class="s4">1</span><span class="s1">) { 
+                                value++</span><span class="s0">;</span><span class="s1"> 
+                            } 
+ 
+                        } 
+ 
+                    } 
+                    countmine[row][column] = value</span><span class="s0">;</span><span class="s1"> 
+ 
+                } 
+            } 
+        } 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">dfs(</span><span class="s0">int </span><span class="s1">row</span><span class="s0">, int </span><span class="s1">col) { 
+ 
+        </span><span class="s0">int </span><span class="s1">R</span><span class="s0">, </span><span class="s1">C</span><span class="s0">;</span><span class="s1"> 
+ 
+        colour[row][col] = </span><span class="s5">'b'</span><span class="s0">;</span><span class="s1"> 
+ 
+        blocks[row][col].setBackground(Color.GRAY)</span><span class="s0">;</span><span class="s1"> 
+ 
+        blocks[row][col].setIcon(ic[countmine[row][col]])</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt; </span><span class="s4">8</span><span class="s0">; </span><span class="s1">i++) { 
+            R = row + r[i]</span><span class="s0">;</span><span class="s1"> 
+            C = col + c[i]</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if </span><span class="s1">(R &gt;= </span><span class="s4">0 </span><span class="s1">&amp;&amp; R &lt; blockr &amp;&amp; C &gt;= </span><span class="s4">0 </span><span class="s1">&amp;&amp; C &lt; blockc &amp;&amp; colour[R][C] == </span><span class="s5">'w'</span><span class="s1">) { 
+                </span><span class="s0">if </span><span class="s1">(countmine[R][C] == </span><span class="s4">0</span><span class="s1">) { 
+                    dfs(R</span><span class="s0">, </span><span class="s1">C)</span><span class="s0">;</span><span class="s1"> 
+                } </span><span class="s0">else </span><span class="s1">{ 
+                    blocks[R][C].setIcon(ic[countmine[R][C]])</span><span class="s0">;</span><span class="s1"> 
+                    colour[R][C] = </span><span class="s5">'b'</span><span class="s0">;</span><span class="s1"> 
+ 
+                } 
+            } 
+ 
+ 
+        } 
+    } 
+    </span><span class="s2">//متدی جهت تعیین بمب ها</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">setmine() { 
+        </span><span class="s0">int </span><span class="s1">row = </span><span class="s4">0</span><span class="s0">, </span><span class="s1">col = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+        Boolean[][] flag = </span><span class="s0">new </span><span class="s1">Boolean[blockr][blockc]</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt; blockr</span><span class="s0">; </span><span class="s1">i++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">j &lt; blockc</span><span class="s0">; </span><span class="s1">j++) { 
+                flag[i][j] = </span><span class="s0">true;</span><span class="s1"> 
+                countmine[i][j] = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+ 
+        flag[var1][var2] = </span><span class="s0">false;</span><span class="s1"> 
+        colour[var1][var2] = </span><span class="s5">'b'</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt; num_of_mine</span><span class="s0">; </span><span class="s1">i++) { 
+            row = ranr.nextInt(blockr)</span><span class="s0">;</span><span class="s1"> 
+            col = ranc.nextInt(blockc)</span><span class="s0">;</span><span class="s1"> 
+ 
+            </span><span class="s0">if </span><span class="s1">(flag[row][col] == </span><span class="s0">true</span><span class="s1">) { 
+ 
+                countmine[row][col] = -</span><span class="s4">1</span><span class="s0">;</span><span class="s1"> 
+                colour[row][col] = </span><span class="s5">'b'</span><span class="s0">;</span><span class="s1"> 
+                flag[row][col] = </span><span class="s0">false;</span><span class="s1"> 
+            } </span><span class="s0">else </span><span class="s1">{ 
+                i--</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+    }</span><span class="s2">//a method for setting the time</span><span class="s1"> 
+</span><span class="s2">//متدی جهت تنظیم آیکون ها</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">setic() { 
+        String name</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">; </span><span class="s1">i &lt;= </span><span class="s4">8</span><span class="s0">; </span><span class="s1">i++) { 
+            name = i + </span><span class="s5">&quot;.gif&quot;</span><span class="s0">;</span><span class="s1"> 
+            ic[i] = </span><span class="s0">new </span><span class="s1">ImageIcon(name)</span><span class="s0">;</span><span class="s1"> 
+        } 
+        ic[</span><span class="s4">9</span><span class="s1">] = </span><span class="s0">new </span><span class="s1">ImageIcon(</span><span class="s5">&quot;mine.gif&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        ic[</span><span class="s4">10</span><span class="s1">] = </span><span class="s0">new </span><span class="s1">ImageIcon(</span><span class="s5">&quot;flag.gif&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        ic[</span><span class="s4">11</span><span class="s1">] = </span><span class="s0">new </span><span class="s1">ImageIcon(</span><span class="s5">&quot;new game.gif&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        ic[</span><span class="s4">12</span><span class="s1">] = </span><span class="s0">new </span><span class="s1">ImageIcon(</span><span class="s5">&quot;crape.gif&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">public class </span><span class="s1">Stopwatch </span><span class="s0">extends </span><span class="s1">JFrame </span><span class="s0">implements </span><span class="s1">Runnable { 
+ 
+        </span><span class="s0">long </span><span class="s1">startTime</span><span class="s0">;</span><span class="s1"> 
+        Thread updater</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">boolean </span><span class="s1">isRunning = </span><span class="s0">false;</span><span class="s1"> 
+        </span><span class="s0">long </span><span class="s1">a = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+        Runnable displayUpdater = </span><span class="s0">new </span><span class="s1">Runnable() { 
+ 
+            </span><span class="s0">public void </span><span class="s1">run() { 
+                displayElapsedTime(a)</span><span class="s0">;</span><span class="s1"> 
+                a++</span><span class="s0">;</span><span class="s1"> 
+            } 
+        }</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">public void </span><span class="s1">stop() { 
+            </span><span class="s0">long </span><span class="s1">elapsed = a</span><span class="s0">;</span><span class="s1"> 
+            isRunning = </span><span class="s0">false;</span><span class="s1"> 
+            </span><span class="s0">try </span><span class="s1">{ 
+                updater.join()</span><span class="s0">;</span><span class="s1"> 
+            } </span><span class="s0">catch </span><span class="s1">(InterruptedException ie) { 
+            } 
+            displayElapsedTime(elapsed)</span><span class="s0">;</span><span class="s1"> 
+            a = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+        } 
+</span><span class="s2">//تابعی جهت نمایش زمان</span><span class="s1"> 
+        </span><span class="s0">private void </span><span class="s1">displayElapsedTime(</span><span class="s0">long </span><span class="s1">elapsedTime) { 
+ 
+            </span><span class="s0">if </span><span class="s1">(elapsedTime &gt;= </span><span class="s4">0 </span><span class="s1">&amp;&amp; elapsedTime &lt; </span><span class="s4">9</span><span class="s1">) { 
+                tf_time.setText(</span><span class="s5">&quot;00&quot; </span><span class="s1">+ elapsedTime)</span><span class="s0">;</span><span class="s1"> 
+            } </span><span class="s0">else if </span><span class="s1">(elapsedTime &gt; </span><span class="s4">9 </span><span class="s1">&amp;&amp; elapsedTime &lt; </span><span class="s4">99</span><span class="s1">) { 
+                tf_time.setText(</span><span class="s5">&quot;0&quot; </span><span class="s1">+ elapsedTime)</span><span class="s0">;</span><span class="s1"> 
+            } </span><span class="s0">else if </span><span class="s1">(elapsedTime &gt; </span><span class="s4">99 </span><span class="s1">&amp;&amp; elapsedTime &lt; </span><span class="s4">999</span><span class="s1">) { 
+                tf_time.setText(</span><span class="s5">&quot;&quot; </span><span class="s1">+ elapsedTime)</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+ 
+        </span><span class="s0">public void </span><span class="s1">run() { 
+            </span><span class="s0">try </span><span class="s1">{ 
+                </span><span class="s0">while </span><span class="s1">(isRunning) { 
+                    SwingUtilities.invokeAndWait(displayUpdater)</span><span class="s0">;</span><span class="s1"> 
+                    Thread.sleep(</span><span class="s4">1000</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                } 
+            } </span><span class="s0">catch </span><span class="s1">(java.lang.reflect.InvocationTargetException ite) { 
+                ite.printStackTrace(System.err)</span><span class="s0">;</span><span class="s1"> 
+            } </span><span class="s0">catch </span><span class="s1">(InterruptedException ie) { 
+            } 
+        } 
+ 
+        </span><span class="s0">public void </span><span class="s1">Start() { 
+            startTime = System.currentTimeMillis()</span><span class="s0">;</span><span class="s1"> 
+            isRunning = </span><span class="s0">true;</span><span class="s1"> 
+            updater = </span><span class="s0">new </span><span class="s1">Thread(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            updater.start()</span><span class="s0">;</span><span class="s1"> 
+        } 
+    } 
+ 
+} 
+</span></pre>
+</body>
+</html>
